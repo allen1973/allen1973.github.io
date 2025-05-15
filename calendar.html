@@ -166,7 +166,7 @@
 
         // Function to load Lunar data from CSV
         async function loadLunarData() {
-            const response = await fetch('https://github.com/allen1973/calendar543/blob/main/A-A0087-001.csv');
+            const response = await fetch('A-A0087-001.csv');
             const csvText = await response.text();
             const lines = csvText.split('\n');
             const lunarMap = {};
