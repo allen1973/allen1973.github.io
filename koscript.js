@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const fullUrl = `${baseUrl}?${params.toString()}`;
 
             resultLink.href = fullUrl;
-            resultLink.textContent = fullUrl;
+            resultLink.textContent = "開會通知單";
             resultDiv.style.display = 'block'; // 顯示結果區塊
         } else {
             alert('請選擇民國年份並輸入股票代碼！');
