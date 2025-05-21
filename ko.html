@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TWSE 股務查詢</title>
+    <link rel="stylesheet" href="kostyle.css">
+</head>
+<body>
+    <div class="container">
+        <h1>TWSE 股務查詢</h1>
+        <form id="stockForm">
+            <div class="form-group">
+                <label for="rocYear">民國年份:</label>
+                <select id="rocYear" name="rocYear"></select>
+            </div>
+            <div class="form-group">
+                <label for="stockCode">股票代碼:</label>
+                <input type="text" id="stockCode" name="stockCode" placeholder="例如: 2330" required>
+            </div>
+            <button type="submit">查詢</button>
+        </form>
+        <div id="result" class="result">
+            <p>查詢結果:</p>
+            <a id="resultLink" href="#" target="_blank"></a>
+        </div>
+    </div>
+    <script src="koscript.js"></script>
+</body>
+</html>
