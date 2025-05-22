@@ -50,7 +50,7 @@
         companyData.forEach(item => {
           const option = document.createElement('option');
           option.value = item['公司代號'];
-          option.textContent = item['公司名稱'];
+          option.textContent = item['公司簡稱'];
           select.appendChild(option);
         });
 
@@ -71,7 +71,7 @@
 
       if (result) {
         resultDiv.innerHTML = `<strong>公司代號：</strong>${result['公司代號']}<br>
-                               <strong>公司名稱：</strong>${result['公司名稱']}`;
+                               <strong>公司名稱：</strong>${result['公司簡稱']}`;
       } else {
         resultDiv.innerText = '請選擇有效的公司。';
       }
