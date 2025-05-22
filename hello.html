@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>查詢公司資料</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f7f7f7; }
+    input, button { padding: 0.5em; font-size: 1em; }
+    #result { margin-top: 1em; padding: 1em; background: #fff; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+  <h2>查詢公司代號或名稱</h2>
+  <form id="lookupForm">
+    <input type="text" id="searchInput" placeholder="請輸入公司代號或名稱" required>
+    <button type="submit">查詢</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    let companyData = [];
+
+    // 載入 CSV 資料
+    fetch('https://dts.twse.com.tw/opendata/t187ap03_L.csv')
+      .then(response => response.text())
+      .then(csvText => {
+        const parsed = Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          encoding: "utf-8"
+        });
+        companyData = parsed.data;
+      });
+
+    // 表單送出事件
+    document.getElementById('lookupForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const input = document.getElementById('searchInput').value.trim();
+      const resultDiv = document.getElementById('result');
+      const result = companyData.find(row =>
+        row['公司代號'] === input || row['公司名稱'].includes(input)
+      );
+
+      if (result) {
+        resultDiv.innerHTML = `<strong>公司代號：</strong>${result['公司代號']}<br>
+                               <strong>公司名稱：</strong>${result['公司名稱']}`;
+      } else {
+        resultDiv.innerHTML = '找不到符合的公司資訊。';
+      }
+    });
+  </script>
+
+</body>
+</html>
