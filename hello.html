@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>查詢公司資料</title>
+  <title>查詢公司資料（TWSE）</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     body { font-family: sans-serif; padding: 2em; background: #f7f7f7; }
@@ -12,43 +12,60 @@
 </head>
 <body>
 
-  <h2>查詢公司代號或名稱</h2>
+  <h2>查詢公司代號或公司名稱</h2>
   <form id="lookupForm">
-    <input type="text" id="searchInput" placeholder="請輸入公司代號或名稱" required>
+    <input type="text" id="searchInput" placeholder="輸入公司代號或名稱" required>
     <button type="submit">查詢</button>
   </form>
 
-  <div id="result"></div>
+  <div id="result">載入資料中，請稍候...</div>
 
   <script>
     let companyData = [];
 
-    // 載入 CSV 資料
+    // 轉碼工具：將 Big5 buffer 解碼成 UTF-8
+    function decodeBig5(buffer) {
+      const decoder = new TextDecoder('big5');
+      return decoder.decode(buffer);
+    }
+
+    // 載入 CSV 並解碼 Big5
     fetch('https://dts.twse.com.tw/opendata/t187ap03_L.csv')
-      .then(response => response.text())
-      .then(csvText => {
-        const parsed = Papa.parse(csvText, {
+      .then(response => response.arrayBuffer())
+      .then(buffer => {
+        const decodedText = decodeBig5(buffer);
+        const parsed = Papa.parse(decodedText, {
           header: true,
-          skipEmptyLines: true,
-          encoding: "utf-8"
+          skipEmptyLines: true
         });
         companyData = parsed.data;
+        document.getElementById('result').innerText = '資料載入完成，請輸入查詢。';
+      })
+      .catch(error => {
+        document.getElementById('result').innerText = '載入失敗，請稍後再試。';
+        console.error('錯誤訊息：', error);
       });
 
-    // 表單送出事件
+    // 查詢功能
     document.getElementById('lookupForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const input = document.getElementById('searchInput').value.trim();
+      const keyword = document.getElementById('searchInput').value.trim();
       const resultDiv = document.getElementById('result');
-      const result = companyData.find(row =>
-        row['公司代號'] === input || row['公司名稱'].includes(input)
+
+      if (!companyData.length) {
+        resultDiv.innerText = '資料尚未載入完成，請稍候。';
+        return;
+      }
+
+      const result = companyData.find(item =>
+        item['公司代號'] === keyword || item['公司名稱'].includes(keyword)
       );
 
       if (result) {
         resultDiv.innerHTML = `<strong>公司代號：</strong>${result['公司代號']}<br>
                                <strong>公司名稱：</strong>${result['公司名稱']}`;
       } else {
-        resultDiv.innerHTML = '找不到符合的公司資訊。';
+        resultDiv.innerText = '找不到符合的公司資訊。';
       }
     });
   </script>
