@@ -2,19 +2,24 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>查詢公司資料（TWSE）</title>
+  <title>查詢公司代號與公司名稱</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     body { font-family: sans-serif; padding: 2em; background: #f7f7f7; }
-    input, button { padding: 0.5em; font-size: 1em; }
+    input, select, button { padding: 0.5em; font-size: 1em; margin-top: 0.5em; }
     #result { margin-top: 1em; padding: 1em; background: #fff; border: 1px solid #ccc; }
   </style>
 </head>
 <body>
 
-  <h2>查詢公司代號或公司名稱</h2>
+  <h2>查詢公司代號與公司名稱</h2>
+
   <form id="lookupForm">
-    <input type="text" id="searchInput" placeholder="輸入公司代號或名稱" required>
+    <label for="companySelect">選擇公司：</label><br>
+    <select id="companySelect" required>
+      <option value="">請選擇公司名稱</option>
+    </select>
+    <br><br>
     <button type="submit">查詢</button>
   </form>
 
@@ -23,13 +28,13 @@
   <script>
     let companyData = [];
 
-    // 轉碼工具：將 Big5 buffer 解碼成 UTF-8
+    // Big5 解碼函數
     function decodeBig5(buffer) {
       const decoder = new TextDecoder('big5');
       return decoder.decode(buffer);
     }
 
-    // 載入 CSV 並解碼 Big5
+    // 載入並處理資料
     fetch('https://dts.twse.com.tw/opendata/t187ap03_L.csv')
       .then(response => response.arrayBuffer())
       .then(buffer => {
@@ -39,33 +44,36 @@
           skipEmptyLines: true
         });
         companyData = parsed.data;
-        document.getElementById('result').innerText = '資料載入完成，請輸入查詢。';
+
+        // 將公司資料填入下拉選單
+        const select = document.getElementById('companySelect');
+        companyData.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item['公司代號'];
+          option.textContent = item['公司名稱'];
+          select.appendChild(option);
+        });
+
+        document.getElementById('result').innerText = '請選擇公司查詢。';
       })
       .catch(error => {
         document.getElementById('result').innerText = '載入失敗，請稍後再試。';
         console.error('錯誤訊息：', error);
       });
 
-    // 查詢功能
+    // 表單送出事件
     document.getElementById('lookupForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const keyword = document.getElementById('searchInput').value.trim();
+      const selectedCode = document.getElementById('companySelect').value;
       const resultDiv = document.getElementById('result');
 
-      if (!companyData.length) {
-        resultDiv.innerText = '資料尚未載入完成，請稍候。';
-        return;
-      }
-
-      const result = companyData.find(item =>
-        item['公司代號'] === keyword || item['公司名稱'].includes(keyword)
-      );
+      const result = companyData.find(item => item['公司代號'] === selectedCode);
 
       if (result) {
         resultDiv.innerHTML = `<strong>公司代號：</strong>${result['公司代號']}<br>
                                <strong>公司名稱：</strong>${result['公司名稱']}`;
       } else {
-        resultDiv.innerText = '找不到符合的公司資訊。';
+        resultDiv.innerText = '請選擇有效的公司。';
       }
     });
   </script>
