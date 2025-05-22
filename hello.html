@@ -35,7 +35,7 @@
     }
 
     // 載入並處理資料
-    fetch('https://dts.twse.com.tw/opendata/t187ap03_L.csv')
+    fetch('t187ap03_L.csv')
       .then(response => response.arrayBuffer())
       .then(buffer => {
         const decodedText = decodeBig5(buffer);
